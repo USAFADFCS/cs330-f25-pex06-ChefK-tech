@@ -13,39 +13,37 @@ as that is necessary to check considering the first and last pairs of the tripCo
 unKnot :: [(Char, Char)] -> String
 unKnot tripCode
    | null tripCode = "not a knot"
-   | typeICheck tripCode = unKnot (typeIknot tripCode)
+   | typeICheck tripCode = unKnot (typeIknot tripCode) 
    | typeIICheck tripCode 1 = unKnot (typeIIknot tripCode 1)
    | otherwise = "tangle - resulting trip code: " ++ (show tripCode)
 
 typeICheck :: [(Char, Char)] -> Bool
+typeICheck [] = False
 typeICheck [_] = False
 typeICheck (a:b:xs)
-   | null (xs) = False
-   | fst (a) == fst (b) = True
+   | (fst (a) == fst (b)) = True
    | otherwise = typeICheck (b:xs)
 
 typeIknot :: [(Char, Char)] -> [(Char, Char)]
+typeIknot [] = []
 typeIknot (a:b:xs)
-   | null (xs) = xs
-   | null [] = []
+   | null (a:b:xs) = xs
    | fst (a) == fst b = xs
-   | otherwise = typeIknot (b:xs)
+   | otherwise = a : typeIknot (b:xs)
 
 typeIICheck :: [(Char, Char)] -> Int -> Bool
-typeIICheck _ _ = False
+typeIICheck [] a = False
+typeIICheck [_] a = False
 typeIICheck (h:t:xs) a
-   | null (t:xs) = False
    | a == 1 =
         if snd h == snd (last (t:xs))
         then typeIIPairCheck (fst h) (fst (last (t:xs))) (init (t:xs))
         else typeIICheck (t:xs) 0
-   | snd h == snd t =
-        typeIIPairCheck (fst h) (fst t) xs
-   | otherwise =
-        typeIICheck (t:xs) 0
+   | (snd h == snd t) = typeIIPairCheck (fst h) (fst t) xs
+   | otherwise = typeIICheck (t:xs) 0
 
 typeIIknot :: [(Char, Char)] -> Int -> [(Char, Char)]
-typeIIknot xs _ = xs
+typeIIknot [] a = []
 typeIIknot (h:t:xs) a
    | a == 1 =
         if snd h == snd (last (t:xs))
@@ -61,8 +59,7 @@ typeIIknot (h:t:xs) a
         h : typeIIknot (t:xs) 0
 
 typeIIPair :: Char -> Char -> [(Char,Char)] -> [(Char,Char)]
-typeIIPair _ _ xs = xs
-typeIIPair _ _ [_] = []
+typeIIPair a b [] = []
 typeIIPair a b (x:y:xs)
    | snd x == snd y &&
      ((a == fst x && b == fst y) || (a == fst y && b == fst x)) =
@@ -70,7 +67,8 @@ typeIIPair a b (x:y:xs)
    | otherwise = x : typeIIPair a b (y:xs)
 
 typeIIPairCheck :: Char -> Char -> [(Char,Char)] -> Bool
-typeIIPairCheck _ _ [_] = False
+typeIIPairCheck a b [] = False
+typeIIPairCheck a b [_] = False
 typeIIPairCheck a b (x:y:xs)
    | snd x == snd y &&
      ((a == fst x && b == fst y) || (a == fst y && b == fst x)) =
@@ -80,7 +78,7 @@ typeIIPairCheck a b (x:y:xs)
 
 main :: IO ()
 main = do
-   let t01 = [('a','o'),('a','u')]
+   let t01 = [('a','o'),('b','o'),('c','o'),('c','u'),('b','u'),('a','u')]
    print("   test case t01 - tripcode: " )
    print(t01)
    print("   result:" ++ unKnot t01)
