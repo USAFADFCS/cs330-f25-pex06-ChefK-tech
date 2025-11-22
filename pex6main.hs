@@ -27,9 +27,9 @@ typeICheck (a:b:xs)
 typeIknot :: [(Char, Char)] -> [(Char, Char)]
 typeIknot [] = []
 typeIknot (a:b:xs)
-   | null (a:b:xs) = xs
    | fst (a) == fst b = xs
    | otherwise = a : typeIknot (b:xs)
+typeIknot (xs) = xs
 
 typeIICheck :: [(Char, Char)] -> Int -> Bool
 typeIICheck [] a = False
@@ -38,9 +38,9 @@ typeIICheck (h:t:xs) a
    | a == 1 =
         if snd h == snd (last (t:xs))
         then typeIIPairCheck (fst h) (fst (last (t:xs))) (init (t:xs))
-        else typeIICheck (t:xs) 0
+        else typeIICheck (t:xs) 1
    | (snd h == snd t) = typeIIPairCheck (fst h) (fst t) xs
-   | otherwise = typeIICheck (t:xs) 0
+   | otherwise = typeIICheck (t:xs) 1
 
 typeIIknot :: [(Char, Char)] -> Int -> [(Char, Char)]
 typeIIknot [] a = []
@@ -48,15 +48,15 @@ typeIIknot (h:t:xs) a
    | a == 1 =
         if snd h == snd (last (t:xs))
         then if typeIIPairCheck (fst h) (fst (last (t:xs))) (init (t:xs))
-             then drop 1 (typeIIPair (fst h) (fst (last (t:xs))) (init (t:xs)))
-             else h : typeIIknot (t:xs) 0
-        else h : typeIIknot (t:xs) 0
+             then typeIIPair (fst h) (fst (last (t:xs))) (init (t:xs))
+             else h : typeIIknot (t:xs) 1
+        else h : typeIIknot (t:xs) 1
    | snd h == snd t =
-        if typeIIPairCheck (fst h) (fst t) xs
-        then drop 1 (typeIIPair (fst h) (fst t) xs)
-        else h : typeIIknot (t:xs) 0
+      if typeIIPairCheck (fst h) (fst t) xs
+         then typeIIPair (fst h) (fst t) xs
+         else h : typeIIknot (t:xs) 1
    | otherwise =
-        h : typeIIknot (t:xs) 0
+        h : typeIIknot (t:xs) 1
 
 typeIIPair :: Char -> Char -> [(Char,Char)] -> [(Char,Char)]
 typeIIPair a b [] = []
@@ -65,6 +65,7 @@ typeIIPair a b (x:y:xs)
      ((a == fst x && b == fst y) || (a == fst y && b == fst x)) =
          xs
    | otherwise = x : typeIIPair a b (y:xs)
+typeIIPair a b (xs) = xs
 
 typeIIPairCheck :: Char -> Char -> [(Char,Char)] -> Bool
 typeIIPairCheck a b [] = False
@@ -78,7 +79,7 @@ typeIIPairCheck a b (x:y:xs)
 
 main :: IO ()
 main = do
-   let t01 = [('a','o'),('b','o'),('c','o'),('c','u'),('b','u'),('a','u')]
+   let t01 = [('a','o'), ('a','u')]
    print("   test case t01 - tripcode: " )
    print(t01)
    print("   result:" ++ unKnot t01)
